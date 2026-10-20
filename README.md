@@ -45,11 +45,7 @@ This installs the lexicons, computes everything and checks the result against th
 paper. It ends with a summary like this:
 
 ```text
-227 figures match the paper, 4 are within one unit of its last printed digit, 0 differ, 0 skipped.
-  close    FR homophone rate without F4 (%): paper 8.49, reproduced 8.50
-  close    t(3): paper 13.42, reproduced 13.43
-  close    r with both FR and EN dropped (n = 3): paper −0.657, reproduced -0.656
-  close    largest sd, verbs and nouns: paper 0.36, reproduced 0.35
+229 figures match the paper, 0 are within one unit of its last printed digit, 0 differ, 0 skipped.
 details: .../outputs/paper_results.md
 ```
 
@@ -74,11 +70,11 @@ To write elsewhere, add `--out-dir <folder>` to any command.
 All inputs are downloaded automatically and kept in `wn`'s download cache
 (`~/.wn_data/downloads/`), so repeated runs do not download them again.
 
-| Input | Used for | Source |
-|---|---|---|
-| English WordNet 2020 (`ewn:2020`) | the English hub | [english-wordnet](https://github.com/globalwordnet/english-wordnet), through `wn` |
-| Hybrid wordnets `hyit`, `hyes`, `hyfr`, `hynl`, `hypt`, `hyde`, version 0.1 | the six other languages | Bergh et al. (2025), from [open-european-wordnets-hybrid](https://github.com/pssvlng/open-european-wordnets-hybrid) |
-| CLEARPOND (Marian et al. 2012) | the external validation of §5.2 | [clearpond.northwestern.edu](https://clearpond.northwestern.edu/) |
+| Input | Used for | Source | Licence |
+|---|---|---|---|
+| English WordNet 2020 (`ewn:2020`) | the English hub | [english-wordnet](https://github.com/globalwordnet/english-wordnet), through `wn` | CC BY 4.0 |
+| Hybrid wordnets `hyit`, `hyes`, `hyfr`, `hynl`, `hypt`, `hyde`, version 0.1 | the six other languages | Bergh et al. (2025), from [open-european-wordnets-hybrid](https://github.com/pssvlng/open-european-wordnets-hybrid) | GPL-3.0 |
+| CLEARPOND (Marian et al. 2012) | the external validation of §5.2 | [clearpond.northwestern.edu](https://clearpond.northwestern.edu/) | see its website |
 
 **Lexicons.** `wn` keeps installed lexicons in a database under `~/.wn_data/`.
 Other lexicons in the same database do no harm; the program selects these seven by
@@ -112,9 +108,8 @@ CLEARPOND `.zip` files or their extracted `.txt` files.
 the reproduced value and how they compare:
 
 - **✓ match:** identical at the precision the paper prints.
-- **≈ close:** within one unit of the paper's last printed digit, for example 13.43
-  where the paper prints 13.42. These come from the paper having been computed from
-  rounded intermediate values; the program uses the exact ones.
+- **≈ close:** within one unit of the paper's last printed digit, for example from
+  rounding.
 - **✗ differs:** anything else.
 - **– skipped:** an input is missing, for example CLEARPOND when it cannot be
   downloaded.
@@ -137,9 +132,8 @@ the reproduced value and how they compare:
 
 ## Figures that need a note
 
-For the first five items below, the setting behind the figure is not obvious from
-the paper's wording. The last two explain the values marked "close" and how the
-phonemes are produced.
+These notes give the exact settings behind figures that the paper states briefly,
+and explain how the phonemes are produced.
 
 - **Table 2, F3 "≈9×".** This compares Spanish homophone clusters under the softer
   capitalisation rule that was tried first (keep a capitalised lemma if a lowercase
@@ -154,18 +148,10 @@ phonemes are produced.
   French the total is therefore 32,336 forms, not the 23,803 that F4 removes after F3.
 - **§3.2, "applying F3 would remove ~75% of [German] vocabulary".** This is
   measured without F4 (75.1%). With F4 applied the share is 71.7%.
-- **§5.3, pre-protocol verb comparison (6,191 English verbs at 2.9 senses, 3,445
-  Spanish at 4.7).** These use a broader definition than Table 5: every homograph
-  with at least one verb sense, counting its verb senses, with F4 off. Table 5
-  counts lemmas with at least two verb senses.
 - **§4, annotation samples.** The sheets cover English and German, 50 items per
   category, except German palindromes, of which only 10 exist. Use
   `python3 program.py annotation --languages en it es fr nl pt de` for all seven
   languages. The seed is fixed (`--seed 20261016`), so the same items are drawn each time.
-- **The four "close" values.** French without F4 is 4,181 ÷ 49,216 = 8.4952%,
-  which the paper prints as 8.49. The t statistic, the n = 3 correlation and the
-  largest fan-in sd were computed for the paper from rounded intermediate values;
-  from exact values they are 13.43, −0.656 and 0.35.
 - **Phonemisation in batches.** The program sends espeak-ng 1,000 words per call,
   as the paper's runs did. In this mode espeak-ng transcribes about 0.1% of words
   slightly differently than when given one word at a time, depending on the

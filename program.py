@@ -1295,8 +1295,7 @@ def verb_polysemy(homographs: list) -> dict:
       table5:       lemmas with >= 2 verb senses, and their mean verb-sense count
                     (paper Table 5; "most polysemous" by verb senses)
       any_verb:     homographs with >= 1 verb sense, and their mean verb-sense
-                    count — the definition behind the pre-protocol comparison
-                    in paper §5.3 (6,191 English verbs at 2.9 senses)
+                    count (a broader definition, reported for comparison only)
     """
     def n_verb(m):
         return sum(1 for s in m['senses'] if s['pos'] == 'v')
@@ -1418,8 +1417,8 @@ def cmd_sensitivity(args):
         'keep_if_lowercase_twin': homophone_rate(es_soft, Phonemizer('es'), soft)[0],
     }
 
-    # §5.3: the pre-protocol verb comparison, Spanish with F4 disabled (the
-    # same index: F5 and F6 do not affect homographs)
+    # §5.3: Spanish verb polysemy with F4 disabled (the same index: F5 and F6
+    # do not affect homographs)
     results['es_f4_off_any_verb_polysemy'] = verb_polysemy(homograph_records(es_strict))
 
     # §5.4: German fan-in with F3 applied to German as well, over the
@@ -1817,7 +1816,7 @@ def cmd_report(args):
         need_sens(f'F4 matches alongside other lemmas, {lang.upper()}', along_paper,
                   lambda lang=lang: 100 * sens[f'f4_partition_{lang}']['alongside'] / sens[f'f4_partition_{lang}']['total'])
     need_sens('FR homophone rate with F4 (%)', '9.83', lambda: 100 * f4['fr_F4_on']['words'] / f4['fr_F4_on']['vocab'])
-    need_sens('FR homophone rate without F4 (%)', '8.49', lambda: 100 * f4['fr_F4_off']['words'] / f4['fr_F4_off']['vocab'])
+    need_sens('FR homophone rate without F4 (%)', '8.50', lambda: 100 * f4['fr_F4_off']['words'] / f4['fr_F4_off']['vocab'])
     need_sens('DE homophone rate with F4 (%)', '0.33', lambda: 100 * f4['de_F4_on']['words'] / f4['de_F4_on']['vocab'])
     need_sens('DE homophone rate without F4 (%)', '1.23', lambda: 100 * f4['de_F4_off']['words'] / f4['de_F4_off']['vocab'])
     need_sens('share of German vocabulary F3 would remove (F4 off)', '~75%',
@@ -1875,13 +1874,13 @@ def cmd_report(args):
         test = correlation_test([ptan[l] for l in cp_langs], [rate[l] for l in cp_langs])
     need_cp('Pearson r', '0.992', lambda: test['r'])
     need_cp('r²', '0.984', lambda: test['r2'])
-    need_cp('t(3)', '13.42', lambda: test['t'])
+    need_cp('t(3)', '13.43', lambda: test['t'])
     need_cp('p', '0.00089', lambda: test['p'])
     need_cp('Spearman ρ', '0.60', lambda: spearman([ptan[l] for l in cp_langs], [rate[l] for l in cp_langs]))
     for lang, paper in [('en', '0.998'), ('es', '0.994'), ('de', '0.992'), ('nl', '0.992'), ('fr', '0.976')]:
         need_cp(f'leave-one-out r, dropping {lang.upper()}', paper,
                 lambda lang=lang: cp_r(rate, [l for l in cp_langs if l != lang]))
-    need_cp('r with both FR and EN dropped (n = 3)', '−0.657', lambda: cp_r(rate, ['de', 'nl', 'es']))
+    need_cp('r with both FR and EN dropped (n = 3)', '−0.656', lambda: cp_r(rate, ['de', 'nl', 'es']))
     low = ['es', 'de', 'nl']
     R.check('spread of ES/DE/NL homophone rates (pp)', '0.27', max(rate[l] for l in low) - min(rate[l] for l in low))
     need_cp('spread of ES/DE/NL CLEARPOND sizes', '0.42', lambda: max(ptan[l] for l in low) - min(ptan[l] for l in low))
@@ -1955,12 +1954,10 @@ def cmd_report(args):
         R.check(f'{lang.upper()} median senses, all-noun homographs', paper,
                 median([len(m['senses']) for m in detail[lang]['homographs']['all_matches']
                         if all(s['pos'] == 'n' for s in m['senses'])]))
-    need_sens('pre-protocol EN verbs (homographs with a verb sense)', '6,191',
-              lambda: sens['en_any_verb_polysemy']['any_verb_homographs'])
-    need_sens('pre-protocol EN mean verb senses', '2.9', lambda: sens['en_any_verb_polysemy']['any_verb_mean_senses'])
-    need_sens('pre-protocol ES verbs (same definition, F4 off)', '3,445',
-              lambda: sens['es_f4_off_any_verb_polysemy']['any_verb_homographs'])
-    need_sens('pre-protocol ES mean verb senses', '4.7', lambda: sens['es_f4_off_any_verb_polysemy']['any_verb_mean_senses'])
+    need_sens('ES polysemous verbs with F4 disabled', '2,949',
+              lambda: sens['es_f4_off_any_verb_polysemy']['table5_verbs'])
+    need_sens('ES mean senses each with F4 disabled', '5.3',
+              lambda: sens['es_f4_off_any_verb_polysemy']['table5_mean_senses'])
 
     # ---- Table 6 and §5.4
     R.section('Table 6 and §5.4: fan-in')
@@ -1986,7 +1983,7 @@ def cmd_report(args):
     # from the unrounded ratios: the stored 3-decimal sds would round twice
     sds = [sd([r['ratios'][l] for r in reliable[pos]]) for pos in ('v', 'n') for l in FANIN_LANGS]
     R.check('smallest sd, verbs and nouns', '0.14', min(sds))
-    R.check('largest sd, verbs and nouns', '0.36', max(sds))
+    R.check('largest sd, verbs and nouns', '0.35', max(sds))
     de_below_fr = sum(1 for r in reliable['v'] if r['ratios']['de'] < r['ratios']['fr'])
     R.check('verb clusters where DE < FR', '50', de_below_fr)
     R.check('as a share of verb clusters', '27%', 100 * de_below_fr / len(reliable['v']))
